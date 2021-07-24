@@ -48,44 +48,24 @@
  *      if not, write to the Free Software Foundation, Inc.,
  *      59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
-#ifndef _SCHED_H
-#define _SCHED_H
+#ifndef _SYS_SCHED_H
+#define _SYS_SCHED_H
 
-#include <sys/types.h>
-#include <sys/sched.h>
+/* Thread scheduling policies */
 
-#include <pte_types.h>
+enum
+{
+  SCHED_OTHER = 0,
+  SCHED_FIFO,
+  SCHED_RR,
+  SCHED_MIN   = SCHED_OTHER,
+  SCHED_MAX   = SCHED_RR
+};
 
-#ifdef __cplusplus
-extern "C"
+struct sched_param
   {
-#endif                          /* __cplusplus */
+    int sched_priority;
+  };
 
-    int sched_yield (void);
-
-    int sched_get_priority_min (int policy);
-
-    int sched_get_priority_max (int policy);
-
-    int sched_setscheduler (pid_t pid, int policy);
-
-    /*
-     * Note that this macro returns ENOTSUP rather than
-     * ENOSYS as might be expected. However, returning ENOSYS
-     * should mean that sched_get_priority_{min,max} are
-     * not implemented as well as sched_rr_get_interval.
-     * This is not the case, since we just don't support
-     * round-robin scheduling. Therefore I have chosen to
-     * return the same value as sched_setscheduler when
-     * SCHED_RR is passed to it.
-     */
-#define sched_rr_get_interval(_pid, _interval) \
-  ( errno = ENOTSUP, (int) -1 )
-
-
-#ifdef __cplusplus
-  }                               /* End of extern "C" */
-#endif                          /* __cplusplus */
-
-#endif                          /* !_SCHED_H */
+#endif                          /* !_SYS_SCHED_H */
 

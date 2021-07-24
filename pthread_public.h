@@ -47,6 +47,7 @@
 #include <pte_types.h>
 
 #include <sched.h>
+#include <signal.h>
 
 #define PTE_VERSION 2,8,0,0
 #define PTE_VERSION_STRING "2, 8, 0, 0\0"
@@ -175,7 +176,8 @@
  *
  * -------------------------------------------------------------
  */
-
+#include "bits/posix_opt.h"
+#include "sys/_pthreadtypes.h"
 #include <time.h>
 
 #include <setjmp.h>
@@ -191,226 +193,7 @@ enum
 };
 
 
-    /*
-     * -------------------------------------------------------------
-     *
-     * POSIX 1003.1-2001 Options
-     * =========================
-     *
-     * Options are normally set in <unistd.h>, which is not provided
-     * with pthreads-embedded.
-     *
-     * For conformance with the Single Unix Specification (version 3), all of the
-     * options below are defined, and have a value of either -1 (not supported)
-     * or 200112L (supported).
-     *
-     * These options can neither be left undefined nor have a value of 0, because
-     * either indicates that sysconf(), which is not implemented, may be used at
-     * runtime to check the status of the option.
-     *
-     * _POSIX_THREADS (== 200112L)
-     *                      If == 200112L, you can use threads
-     *
-     * _POSIX_THREAD_ATTR_STACKSIZE (== 200112L)
-     *                      If == 200112L, you can control the size of a thread's
-     *                      stack
-     *                              pthread_attr_getstacksize
-     *                              pthread_attr_setstacksize
-     *
-     * _POSIX_THREAD_ATTR_STACKADDR (== -1)
-     *                      If == 200112L, you can allocate and control a thread's
-     *                      stack. If not supported, the following functions
-     *                      will return ENOSYS, indicating they are not
-     *                      supported:
-     *                              pthread_attr_getstackaddr
-     *                              pthread_attr_setstackaddr
-     *
-     * _POSIX_THREAD_PRIORITY_SCHEDULING (== -1)
-     *                      If == 200112L, you can use realtime scheduling.
-     *                      This option indicates that the behaviour of some
-     *                      implemented functions conforms to the additional TPS
-     *                      requirements in the standard. E.g. rwlocks favour
-     *                      writers over readers when threads have equal priority.
-     *
-     * _POSIX_THREAD_PRIO_INHERIT (== -1)
-     *                      If == 200112L, you can create priority inheritance
-     *                      mutexes.
-     *                              pthread_mutexattr_getprotocol +
-     *                              pthread_mutexattr_setprotocol +
-     *
-     * _POSIX_THREAD_PRIO_PROTECT (== -1)
-     *                      If == 200112L, you can create priority ceiling mutexes
-     *                      Indicates the availability of:
-     *                              pthread_mutex_getprioceiling
-     *                              pthread_mutex_setprioceiling
-     *                              pthread_mutexattr_getprioceiling
-     *                              pthread_mutexattr_getprotocol     +
-     *                              pthread_mutexattr_setprioceiling
-     *                              pthread_mutexattr_setprotocol     +
-     *
-     * _POSIX_THREAD_PROCESS_SHARED (== -1)
-     *                      If set, you can create mutexes and condition
-     *                      variables that can be shared with another
-     *                      process.If set, indicates the availability
-     *                      of:
-     *                              pthread_mutexattr_getpshared
-     *                              pthread_mutexattr_setpshared
-     *                              pthread_condattr_getpshared
-     *                              pthread_condattr_setpshared
-     *
-     * _POSIX_THREAD_SAFE_FUNCTIONS (== 200112L)
-     *                      If == 200112L you can use the special *_r library
-     *                      functions that provide thread-safe behaviour
-     *
-     * _POSIX_READER_WRITER_LOCKS (== 200112L)
-     *                      If == 200112L, you can use read/write locks
-     *
-     * _POSIX_SPIN_LOCKS (== 200112L)
-     *                      If == 200112L, you can use spin locks
-     *
-     * _POSIX_BARRIERS (== 200112L)
-     *                      If == 200112L, you can use barriers
-     *
-     *      + These functions provide both 'inherit' and/or
-     *        'protect' protocol, based upon these macro
-     *        settings.
-     *
-     * -------------------------------------------------------------
-     */
-
-    /*
-     * POSIX Options
-     */
-#undef _POSIX_THREADS
-#define _POSIX_THREADS 200112L
-
-#undef _POSIX_READER_WRITER_LOCKS
-#define _POSIX_READER_WRITER_LOCKS 200112L
-
-#undef _POSIX_SPIN_LOCKS
-#define _POSIX_SPIN_LOCKS 200112L
-
-#undef _POSIX_BARRIERS
-#define _POSIX_BARRIERS 200112L
-
-#undef _POSIX_THREAD_SAFE_FUNCTIONS
-#define _POSIX_THREAD_SAFE_FUNCTIONS 200112L
-
-#undef _POSIX_THREAD_ATTR_STACKSIZE
-#define _POSIX_THREAD_ATTR_STACKSIZE 200112L
-
-    /*
-     * The following options are not supported
-     */
-#undef _POSIX_THREAD_ATTR_STACKADDR
-#define _POSIX_THREAD_ATTR_STACKADDR -1
-
-#undef _POSIX_THREAD_PRIO_INHERIT
-#define _POSIX_THREAD_PRIO_INHERIT -1
-
-#undef _POSIX_THREAD_PRIO_PROTECT
-#define _POSIX_THREAD_PRIO_PROTECT -1
-
-    /* TPS is not fully supported.  */
-#undef _POSIX_THREAD_PRIORITY_SCHEDULING
-#define _POSIX_THREAD_PRIORITY_SCHEDULING -1
-
-#undef _POSIX_THREAD_PROCESS_SHARED
-#define _POSIX_THREAD_PROCESS_SHARED -1
-
-
-    /*
-     * POSIX 1003.1-2001 Limits
-     * ===========================
-     *
-     * These limits are normally set in <limits.h>, which is not provided with
-     * pthreads-embedded.
-     *
-     * PTHREAD_DESTRUCTOR_ITERATIONS
-     *                      Maximum number of attempts to destroy
-     *                      a thread's thread-specific data on
-     *                      termination (must be at least 4)
-     *
-     * PTHREAD_KEYS_MAX
-     *                      Maximum number of thread-specific data keys
-     *                      available per process (must be at least 128)
-     *
-     * PTHREAD_STACK_MIN
-     *                      Minimum supported stack size for a thread
-     *
-     * PTHREAD_THREADS_MAX
-     *                      Maximum number of threads supported per
-     *                      process (must be at least 64).
-     *
-     * SEM_NSEMS_MAX
-     *                      The maximum number of semaphores a process can have.
-     *                      (must be at least 256)
-     *
-     * SEM_VALUE_MAX
-     *                      The maximum value a semaphore can have.
-     *                      (must be at least 32767)
-     *
-     */
-#undef _POSIX_THREAD_DESTRUCTOR_ITERATIONS
-#define _POSIX_THREAD_DESTRUCTOR_ITERATIONS     4
-
-#undef PTHREAD_DESTRUCTOR_ITERATIONS
-#define PTHREAD_DESTRUCTOR_ITERATIONS           _POSIX_THREAD_DESTRUCTOR_ITERATIONS
-
-#undef _POSIX_THREAD_KEYS_MAX
-#define _POSIX_THREAD_KEYS_MAX                  128
-
-#undef PTHREAD_KEYS_MAX
-#define PTHREAD_KEYS_MAX                        _POSIX_THREAD_KEYS_MAX
-
-#undef PTHREAD_STACK_MIN
-#define PTHREAD_STACK_MIN                       32*1024
-
-#undef _POSIX_THREAD_THREADS_MAX
-#define _POSIX_THREAD_THREADS_MAX               64
-
-    /* Arbitrary value */
-#undef PTHREAD_THREADS_MAX
-#define PTHREAD_THREADS_MAX                     2019
-
-#undef _POSIX_SEM_NSEMS_MAX
-#define _POSIX_SEM_NSEMS_MAX                    256
-
-    /* Arbitrary value */
-#undef SEM_NSEMS_MAX
-#define SEM_NSEMS_MAX                           1024
-
-#undef _POSIX_SEM_VALUE_MAX
-#define _POSIX_SEM_VALUE_MAX                    32767
-
-#undef SEM_VALUE_MAX
-#define SEM_VALUE_MAX                           INT_MAX
-
-
-#ifdef PTE_INTERNAL
-    /*
-     * Generic handle type - intended to extend uniqueness beyond
-     * that available with a simple pointer. It should scale for either
-     * IA-32 or IA-64.
-     */
-    typedef unsigned int* pte_handle_t;
-
-    typedef pte_handle_t pthread_t;
-#else
-    typedef unsigned int pthread_t;
-#endif
-    typedef struct pthread_attr_t_ * pthread_attr_t;
-    typedef struct pthread_once_t_ pthread_once_t;
-    typedef struct pthread_key_t_ * pthread_key_t;
-    typedef struct pthread_mutex_t_ * pthread_mutex_t;
-    typedef struct pthread_mutexattr_t_ * pthread_mutexattr_t;
-    typedef struct pthread_cond_t_ * pthread_cond_t;
-    typedef struct pthread_condattr_t_ * pthread_condattr_t;
-    typedef struct pthread_rwlock_t_ * pthread_rwlock_t;
-    typedef struct pthread_rwlockattr_t_ * pthread_rwlockattr_t;
-    typedef struct pthread_spinlock_t_ * pthread_spinlock_t;
-    typedef struct pthread_barrier_t_ * pthread_barrier_t;
-    typedef struct pthread_barrierattr_t_ * pthread_barrierattr_t;
+typedef unsigned int pthread_t_;
 
     /*
      * ====================
@@ -423,24 +206,6 @@ enum
     enum
     {
       /*
-       * pthread_attr_{get,set}detachstate
-       */
-      PTHREAD_CREATE_JOINABLE       = 0,  /* Default */
-      PTHREAD_CREATE_DETACHED       = 1,
-
-      /*
-       * pthread_attr_{get,set}inheritsched
-       */
-      PTHREAD_INHERIT_SCHED         = 0,
-      PTHREAD_EXPLICIT_SCHED        = 1,  /* Default */
-
-      /*
-       * pthread_{get,set}scope
-       */
-      PTHREAD_SCOPE_PROCESS         = 0,
-      PTHREAD_SCOPE_SYSTEM          = 1,  /* Default */
-
-      /*
        * pthread_setcancelstate paramters
        */
       PTHREAD_CANCEL_ENABLE         = 0,  /* Default */
@@ -451,13 +216,6 @@ enum
        */
       PTHREAD_CANCEL_ASYNCHRONOUS   = 0,
       PTHREAD_CANCEL_DEFERRED       = 1,  /* Default */
-
-      /*
-       * pthread_mutexattr_{get,set}pshared
-       * pthread_condattr_{get,set}pshared
-       */
-      PTHREAD_PROCESS_PRIVATE       = 0,
-      PTHREAD_PROCESS_SHARED        = 1,
 
       /*
        * pthread_barrier_wait
@@ -474,7 +232,6 @@ enum
      */
 #define PTHREAD_CANCELED       ((void *) -1)
 
-
     /*
      * ====================
      * ====================
@@ -482,16 +239,7 @@ enum
      * ====================
      * ====================
      */
-#define PTHREAD_ONCE_INIT       { PTE_FALSE, 0, 0, 0}
-
-    struct pthread_once_t_
-      {
-        int          state;
-        void *       semaphore;
-        int          numSemaphoreUsers;
-        int          done;        /* indicates if user function has been executed */
-      };
-
+#define PTHREAD_ONCE_INIT       _PTHREAD_ONCE_INIT
 
     /*
      * ====================
@@ -500,9 +248,7 @@ enum
      * ====================
      * ====================
      */
-#define PTHREAD_MUTEX_INITIALIZER ((pthread_mutex_t) -1)
-#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER ((pthread_mutex_t) -2)
-#define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER ((pthread_mutex_t) -3)
+#define PTHREAD_MUTEX_INITIALIZER _PTHREAD_MUTEX_INITIALIZER
 
     /*
      * Compatibility with LinuxThreads
@@ -510,31 +256,9 @@ enum
 #define PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP PTHREAD_RECURSIVE_MUTEX_INITIALIZER
 #define PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP PTHREAD_ERRORCHECK_MUTEX_INITIALIZER
 
-#define PTHREAD_COND_INITIALIZER ((pthread_cond_t) -1)
+#define PTHREAD_COND_INITIALIZER _PTHREAD_COND_INITIALIZER
 
-#define PTHREAD_RWLOCK_INITIALIZER ((pthread_rwlock_t) -1)
-
-#define PTHREAD_SPINLOCK_INITIALIZER ((pthread_spinlock_t) -1)
-
-
-    /*
-     * Mutex types.
-     */
-    enum
-    {
-      /* Compatibility with LinuxThreads */
-      PTHREAD_MUTEX_FAST_NP,
-      PTHREAD_MUTEX_RECURSIVE_NP,
-      PTHREAD_MUTEX_ERRORCHECK_NP,
-      PTHREAD_MUTEX_TIMED_NP = PTHREAD_MUTEX_FAST_NP,
-      PTHREAD_MUTEX_ADAPTIVE_NP = PTHREAD_MUTEX_FAST_NP,
-      /* For compatibility with POSIX */
-      PTHREAD_MUTEX_NORMAL = PTHREAD_MUTEX_FAST_NP,
-      PTHREAD_MUTEX_RECURSIVE = PTHREAD_MUTEX_RECURSIVE_NP,
-      PTHREAD_MUTEX_ERRORCHECK = PTHREAD_MUTEX_ERRORCHECK_NP,
-      PTHREAD_MUTEX_DEFAULT = PTHREAD_MUTEX_NORMAL
-    };
-
+#define PTHREAD_RWLOCK_INITIALIZER _PTHREAD_RWLOCK_INITIALIZER
 
     typedef struct pte_cleanup_t pte_cleanup_t;
 
@@ -549,6 +273,11 @@ enum
 
 #ifdef PTE_CLEANUP_C
 
+    pte_cleanup_t *  pte_pop_cleanup (int execute);
+
+    void  pte_push_cleanup (pte_cleanup_t * cleanup,
+                            void (*routine) (void *),
+                            void *arg);
     /*
      * C implementation of PThreads cancel cleanup
      */
@@ -762,14 +491,6 @@ extern "C" {
     int  pthread_atfork(void (*prepare)(void),
                        void (*parent)(void),
                        void (*child)(void));
-
-#if PTE_LEVEL >= PTE_LEVEL_MAX
-    pte_cleanup_t *  pte_pop_cleanup (int execute);
-
-    void  pte_push_cleanup (pte_cleanup_t * cleanup,
-                            void (*routine) (void *),
-                            void *arg);
-#endif /* PTE_LEVEL >= PTE_LEVEL_MAX */
 
     /*
      * Thread Specific Data Functions
@@ -995,11 +716,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#if PTE_LEVEL >= PTE_LEVEL_MAX
-
-
-
-#endif /* PTE_LEVEL >= PTE_LEVEL_MAX */
 
     /*
      * Some compiler environments don't define some things.

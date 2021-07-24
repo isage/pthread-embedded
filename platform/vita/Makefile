@@ -175,7 +175,7 @@ CXX = arm-vita-eabi-g++
 AR = arm-vita-eabi-ar
 
 CFLAGS = $(GLOBAL_CFLAGS) -Wl,-q -Wall -O3 -ffat-lto-objects -flto -fno-strict-aliasing -I. -I../..
-CXXFLAGS = $(CFLAGS) -fexceptions -fno-rtti -Werror -D__CLEANUP_CXX
+CXXFLAGS = $(CFLAGS) -fexceptions -fno-rtti -Werror -D__CLEANUP_CXX -D_POSIX_THREADS_INTERNAL
 ASFLAGS = $(CFLAGS)
 
 ifeq ($(CLEANUP_TYPE),CPPXX)
@@ -205,4 +205,7 @@ install: $(TARGET_LIB)
 	@install -m644 pte_types.h $(DESTDIR)$(PREFIX)/include
 	@install -m644 ../../pthread_public.h $(DESTDIR)$(PREFIX)/include/pthread.h
 	@install -m644 ../../sched.h $(DESTDIR)$(PREFIX)/include/
+	@install -m644 ../../sys/_pthreadtypes.h $(DESTDIR)$(PREFIX)/include/sys/
+	@install -m644 ../../sys/sched.h $(DESTDIR)$(PREFIX)/include/sys/
+	@install -m644 ../../bits/posix_opt.h $(DESTDIR)$(PREFIX)/include/bits/
 	@install -m644 ../../semaphore.h $(DESTDIR)$(PREFIX)/include/
