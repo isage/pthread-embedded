@@ -1,5 +1,5 @@
-#ifndef	_POSIX_OPT_H
-#define	_POSIX_OPT_H	1
+#ifndef _POSIX_OPT_H
+#define _POSIX_OPT_H 1
 
 #include <limits.h>
 
@@ -13,9 +13,12 @@
 #define _POSIX_THREAD_PRIO_INHERIT              -1
 #define _POSIX_THREAD_PRIO_PROTECT              -1
 #define _POSIX_THREAD_PROCESS_SHARED            -1
-#define _POSIX_PRIORITY_SCHEDULING	            1
-#define _POSIX_TIMEOUTS	                        1
+#define _POSIX_PRIORITY_SCHEDULING              1
+#define _POSIX_TIMEOUTS                         1
 #define _UNIX98_THREAD_MUTEX_ATTRIBUTES         1
+#define _POSIX_MONOTONIC_CLOCK                  200112L
+#define _POSIX_TIMERS                           1
+
 
 #define _POSIX_THREAD_DESTRUCTOR_ITERATIONS     4
 #define PTHREAD_DESTRUCTOR_ITERATIONS           _POSIX_THREAD_DESTRUCTOR_ITERATIONS
@@ -26,17 +29,15 @@
 #define PTHREAD_STACK_MIN                       32*1024
 #define _POSIX_THREAD_THREADS_MAX               64
 
-    /* Arbitrary value */
-#define PTHREAD_THREADS_MAX                     2019
+#define PTHREAD_THREADS_MAX                     _POSIX_THREAD_THREADS_MAX
 
 #define _POSIX_SEM_NSEMS_MAX                    256
 
-    /* Arbitrary value */
-#define SEM_NSEMS_MAX                           1024
+#define SEM_NSEMS_MAX                           _POSIX_SEM_NSEMS_MAX
 
 #define _POSIX_SEM_VALUE_MAX                    32767
 
-#define SEM_VALUE_MAX                           INT_MAX
+#define SEM_VALUE_MAX                           _POSIX_SEM_VALUE_MAX
 
 #define INCLUDE_NP                              1
 
