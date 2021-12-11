@@ -174,7 +174,7 @@ CC = arm-vita-eabi-gcc
 CXX = arm-vita-eabi-g++
 AR = arm-vita-eabi-ar
 
-CFLAGS = $(GLOBAL_CFLAGS) -Wl,-q -Wall -O3 -ffat-lto-objects -flto -fno-strict-aliasing -I. -I../..
+CFLAGS = $(GLOBAL_CFLAGS) -Wl,-q -Wall -O3 -fno-strict-aliasing -I. -I../..
 CXXFLAGS = $(CFLAGS) -fexceptions -fno-rtti -Werror -D__CLEANUP_CXX -D_POSIX_THREADS_INTERNAL
 ASFLAGS = $(CFLAGS)
 
