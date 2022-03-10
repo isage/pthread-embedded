@@ -10,9 +10,9 @@ if (VITA)
   include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-q -Wall -O3 -fno-strict-aliasing")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,-q -Wall -O3 -fno-strict-aliasing -fno-lto")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions -Werror -D__CLEANUP_CXX")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions -Werror -D__CLEANUP_CXX -fno-lto")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
