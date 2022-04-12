@@ -114,6 +114,9 @@ static void runThreadTests(int iteration)
   printf("Priority test #2\n");
   pthread_test_priority2();
 
+  printf("Affinity test #1\n");
+  pthread_test_affinity1();
+
 //  printf("Inherit test #1\n");
 //  pthread_test_inherit1();  ///@todo
 

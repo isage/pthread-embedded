@@ -156,7 +156,7 @@ pte_osResult pte_osThreadCreate(pte_osThreadEntryPoint entryPoint,
 		return PTE_OS_NO_RESOURCES;
 	}
 
-	thid = sceKernelCreateThread("",
+	thid = sceKernelCreateThread("pthread",
 								 pspStubThreadEntry,
 								 invert_priority(initialPriority),
 								 stackSize,
@@ -332,6 +332,27 @@ int pte_osThreadGetMaxPriority()
 int pte_osThreadGetDefaultPriority()
 {
 	return 160;
+}
+
+int pte_osThreadGetAffinity(pte_osThreadHandle threadHandle)
+{
+	int affinity = sceKernelGetThreadCpuAffinityMask(threadHandle);
+	if (affinity < 0)
+	{
+		return affinity;
+	}
+	// set to default
+	if (affinity == 0) affinity = SCE_KERNEL_CPU_MASK_USER_ALL;
+	affinity = affinity >> 16;
+	return affinity;
+}
+
+pte_osResult pte_osThreadSetAffinity(pte_osThreadHandle threadHandle, int affinity)
+{
+	affinity = affinity << 16;
+	if (sceKernelChangeThreadCpuAffinityMask(threadHandle, affinity) == 0)
+		return PTE_OS_OK;
+	return PTE_OS_INVALID_PARAM;
 }
 
 /****************************************************************************

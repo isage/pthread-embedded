@@ -485,6 +485,17 @@ int pte_osThreadGetDefaultPriority()
   return 18;
 }
 
+int pte_osThreadGetAffinity(pte_osThreadHandle threadHandle)
+{
+  return 0;
+}
+
+pte_osResult pte_osThreadSetAffinity(pte_osThreadHandle threadHandle, int affinity)
+{
+  return PTE_OS_OK;
+}
+
+
 /****************************************************************************
  *
  * Mutexes

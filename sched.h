@@ -69,6 +69,31 @@ extern "C"
 
     int sched_setscheduler (pid_t pid, int policy);
 
+//    int sched_setaffinity(pid_t pid, size_t cpusetsize,
+//                             const cpu_set_t *mask);
+//    int sched_getaffinity(pid_t pid, size_t cpusetsize,
+//                             cpu_set_t *mask);
+
+    extern int __sched_cpucount(const cpu_set_t *setp);
+
+    #define CPU_ZERO(cpusetp) \
+        do *cpusetp = 0; while (0)
+
+    #define CPU_SET(cpu, cpusetp) \
+        do *cpusetp |= (1U << (cpu)); while (0)
+
+    #define CPU_CLR(cpu, cpusetp) \
+        do *cpusetp &= ~(1U << (cpu)); while (0)
+
+    #define CPU_ISSET(cpu, cpusetp) \
+        (!!(*cpusetp & (1U << (cpu))))
+
+    #define CPU_COUNT(cpusetp) \
+        __sched_cpucount(cpusetp)
+
+    #define CPU_EQUAL(cpusetp1, cpusetp2) \
+        (*cpusetp1 == *cpusetp2)
+
     /*
      * Note that this macro returns ENOTSUP rather than
      * ENOSYS as might be expected. However, returning ENOSYS

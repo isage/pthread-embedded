@@ -73,7 +73,10 @@ THREAD_OBJS = \
   pthread_getschedparam.o \
   pthread_setschedparam.o \
   sched_get_priority_max.o \
-  sched_get_priority_min.o
+  sched_get_priority_min.o \
+  pthread_setaffinity_np.o \
+  pthread_getaffinity_np.o \
+  sched_cpucount.o
 
 
 TLS_OBJS = \
@@ -96,8 +99,8 @@ MISC_OBJS = \
   global.o \
   pthread_timechange_handler_np.o \
   pte_cond_check_need_init.o \
-	pthread_getconcurrency.o \
-	pthread_setconcurrency.o \
+  pthread_getconcurrency.o \
+  pthread_setconcurrency.o \
   pte_cancellable_wait.o
 
 SEM_OBJS = \
