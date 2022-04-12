@@ -188,6 +188,18 @@ int pte_osThreadGetPriority(pte_osThreadHandle threadHandle);
 pte_osResult pte_osThreadSetPriority(pte_osThreadHandle threadHandle, int newPriority);
 
 /**
+ * Sets the affinity of the specified thread.
+ *
+ * @return PTE_OS_OK - thread affinity successfully set
+ */
+pte_osResult pte_osThreadSetAffinity(pte_osThreadHandle threadHandle, int newAffinity);
+
+/**
+ * Returns the affinity of the specified thread.
+ */
+int pte_osThreadGetAffinity(pte_osThreadHandle threadHandle);
+
+/**
  * Frees resources associated with the specified thread.  This is called after the thread has terminated
  * and is no longer needed (e.g. after pthread_join returns).  This call will always be made
  * from a different context than that of the target thread.

@@ -98,7 +98,8 @@ THREAD_TEST_OBJS = \
   reuse2.o \
   priority1.o \
   priority2.o \
-  inherit1.o
+  inherit1.o \
+  affinity1.o
 
 
 SPIN_TEST_OBJS = \

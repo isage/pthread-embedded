@@ -693,6 +693,11 @@ extern "C" {
     int  pthread_delay_np (struct timespec * interval);
     int  pthread_num_processors_np(void);
 
+    int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize,
+                                  const cpu_set_t *cpuset);
+    int pthread_getaffinity_np(pthread_t thread, size_t cpusetsize,
+                                  cpu_set_t *cpuset);
+
     /*
      * Register a system time change with the library.
      * Causes the library to perform various functions
