@@ -54,7 +54,7 @@ pte_relmillisecs (const struct timespec * abstime)
   const long long MILLISEC_PER_SEC = 1000;
   unsigned int milliseconds;
   long long tmpAbsMilliseconds;
-  long  tmpCurrMilliseconds;
+  long long tmpCurrMilliseconds;
   struct timeb currSysTime;
 
   /*
