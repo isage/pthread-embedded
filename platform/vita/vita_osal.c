@@ -630,15 +630,12 @@ pte_osResult pte_osTlsFree(unsigned int index)
 
 int ftime(struct timeb *tb)
 {
-  struct timeval tv;
-  struct timezone tz;
+  struct timespec tv;
 
-  gettimeofday(&tv, &tz);
+  clock_gettime(CLOCK_REALTIME, &tv);
 
   tb->time = tv.tv_sec;
-  tb->millitm = tv.tv_usec / 1000;
-  tb->timezone = tz.tz_minuteswest;
-  tb->dstflag = tz.tz_dsttime;
+  tb->millitm = tv.tv_nsec / 1000;
 
   return 0;
 }
