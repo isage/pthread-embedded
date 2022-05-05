@@ -635,7 +635,7 @@ int ftime(struct timeb *tb)
   clock_gettime(CLOCK_REALTIME, &tv);
 
   tb->time = tv.tv_sec;
-  tb->millitm = tv.tv_nsec / 1000;
+  tb->millitm = tv.tv_nsec / 1000000;
 
   return 0;
 }
